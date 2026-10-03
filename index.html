@@ -1,0 +1,1639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bacting Pharmacy Employee Portal</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Firebase SDK (Modular via CDN) -->
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+      import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
+      import { getFirestore } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+      // Your web app's Firebase configuration
+      const firebaseConfig = {
+        apiKey: "AIzaSyABS2HvBEI7gICbIlljb1hvFhHH8cmGQ0k",
+        authDomain: "updated-portal.firebaseapp.com",
+        projectId: "updated-portal",
+        storageBucket: "updated-portal.firebasestorage.app",
+        messagingSenderId: "643722007793",
+        appId: "1:643722007793:web:fb553d959e6443a1578550",
+        measurementId: "G-6YXJ43V70X"
+      };
+
+      // Initialize Firebase
+      const app = initializeApp(firebaseConfig);
+      const analytics = getAnalytics(app);
+      const db = getFirestore(app);
+
+      window.firebaseApp = app;
+      window.firebaseDb = db;
+
+      window.addEventListener('DOMContentLoaded', () => {
+          const statusDot = document.getElementById('firebase-status-dot');
+          const statusDotInner = document.getElementById('firebase-status-dot-inner');
+          try {
+              if (statusDot) {
+                  statusDot.className = 'w-3 h-3 rounded-full bg-emerald-500 shadow-sm shadow-emerald-500/50';
+                  statusDot.title = "Connected to Firebase (updated-portal)";
+              }
+              if (statusDotInner) {
+                  statusDotInner.className = 'w-3 h-3 rounded-full bg-emerald-500 shadow-sm shadow-emerald-500/50';
+                  statusDotInner.title = "Connected to Firebase (updated-portal)";
+              }
+          } catch (err) {
+              if (statusDot) {
+                  statusDot.className = 'w-3 h-3 rounded-full bg-rose-600 shadow-sm shadow-rose-600/50';
+              }
+              if (statusDotInner) {
+                  statusDotInner.className = 'w-3 h-3 rounded-full bg-rose-600 shadow-sm shadow-rose-600/50';
+              }
+          }
+      });
+    </script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        pharma: {
+                            50: '#fff7ed',
+                            100: '#ffedd5',
+                            200: '#fed7aa',
+                            500: '#f97316',
+                            600: '#ea580c',
+                            700: '#c2410c',
+                            800: '#9a3412',
+                            900: '#7c2d12',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #fff7ed; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #fdba74; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #f97316; }
+        @media print {
+            aside, header, .no-print { display: none !important; }
+            main { padding: 0 !important; margin: 0 !important; width: 100% !important; }
+            .print-full-width { width: 100% !important; max-width: 100% !important; box-shadow: none !important; }
+        }
+    </style>
+</head>
+<body class="bg-amber-950 text-slate-800 min-h-screen flex flex-col antialiased selection:bg-orange-500 selection:text-white">
+
+    <!-- 1. LOGIN SCREEN VIEW -->
+    <div id="login-view" class="min-h-screen flex items-center justify-center p-4 sm:p-6 lg:p-8 bg-gradient-to-br from-stone-950 via-amber-950 to-orange-950 relative">
+        <!-- Top-Right Utilities on Login Screen -->
+        <div class="absolute top-4 right-4 flex items-center gap-3">
+            <a href="https://docs.google.com/forms/d/e/1FAIpQLSdpsFKhIFr75b2xPp0wXZberHl3j89ArgVDR5S8TVzvMSeU6Q/viewform" target="_blank" class="bg-orange-600 hover:bg-orange-500 text-white px-3.5 py-2 rounded-xl text-xs font-bold shadow-lg flex items-center gap-2 transition-all">
+                <i class="fa-solid fa-list-check"></i> Weekly Task
+            </a>
+            <div class="bg-stone-900 border border-orange-900/60 p-2.5 rounded-full shadow-lg flex items-center gap-2" title="Firebase Status">
+                <span id="firebase-status-dot" class="w-3 h-3 rounded-full bg-rose-600 shadow-sm shadow-rose-600/55 animate-pulse"></span>
+            </div>
+        </div>
+
+        <div class="w-full max-w-xl bg-stone-900 border border-orange-900/40 rounded-3xl shadow-2xl overflow-hidden my-auto">
+            <div class="p-8 sm:p-10 text-center border-b border-orange-900/30 bg-stone-900/80">
+                <div class="w-20 h-20 rounded-2xl bg-gradient-to-tr from-orange-600 to-amber-500 flex items-center justify-center text-white font-black text-4xl shadow-xl shadow-orange-950/60 mx-auto mb-4 border border-orange-400/30 relative">
+                    <i class="fa-solid fa-prescription-bottle-medical"></i>
+                    <span class="absolute -top-1 -right-1 flex h-4 w-4">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-4 w-4 bg-amber-400"></span>
+                    </span>
+                </div>
+                <h1 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">Bacting Pharmacy</h1>
+                <p class="text-sm sm:text-base text-orange-200/70 mt-2 font-medium">Employee Attendance & Payroll Portal</p>
+            </div>
+
+            <div class="p-6 sm:p-10 space-y-8">
+                <div class="grid grid-cols-2 gap-3 p-1.5 bg-stone-950 rounded-2xl border border-orange-950 shadow-inner">
+                    <button id="tab-btn-emp" onclick="setLoginMode('employee')" class="py-4 px-3 rounded-xl text-sm sm:text-base font-bold text-white bg-orange-600 shadow-lg transition-all flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-capsules text-lg"></i> Pharmacy Staff
+                    </button>
+                    <button id="tab-btn-mgr" onclick="setLoginMode('manager')" class="py-4 px-3 rounded-xl text-sm sm:text-base font-bold text-orange-300 hover:text-white transition-all flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-user-doctor text-lg"></i> Manager Portal
+                    </button>
+                </div>
+
+                <form onsubmit="handleLogin(event)" class="space-y-6">
+                    <div id="emp-select-container" class="space-y-3">
+                        <label class="block text-xs sm:text-sm font-bold text-orange-200/80 uppercase tracking-wider">
+                            Select Staff Account (Tap Card)
+                        </label>
+                        <div id="emp-touch-grid" class="grid grid-cols-3 gap-3"></div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="block text-xs sm:text-sm font-bold text-orange-200/80 uppercase tracking-wider flex justify-between items-center">
+                            <span id="pin-label-text">Security PIN</span>
+                        </label>
+                        <div class="relative">
+                            <input type="password" id="login-pin-input" required placeholder="••••" maxlength="8" class="w-full bg-stone-800 border-2 border-orange-900/60 text-white text-center font-mono text-2xl sm:text-3xl font-black rounded-2xl p-4 focus:ring-4 focus:ring-orange-500/30 focus:border-orange-500 focus:outline-none tracking-[0.4em] placeholder:tracking-normal placeholder:font-sans placeholder:text-stone-600">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="w-full py-4 sm:py-5 bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-500 hover:to-amber-500 text-white font-extrabold text-lg sm:text-xl rounded-2xl shadow-xl shadow-orange-950/80 transition-all transform active:scale-95 flex items-center justify-center gap-3">
+                        <i class="fa-solid fa-right-to-bracket text-xl"></i> Access Portal
+                    </button>
+                </form>
+
+                <div class="text-center pt-4 border-t border-orange-900/30">
+                    <button onclick="resetDataPrompt()" class="text-xs sm:text-sm text-amber-400 hover:text-amber-300 hover:underline inline-flex items-center gap-1.5 font-medium transition-colors">
+                        <i class="fa-solid fa-rotate-right"></i> Reset Demo Data
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. MAIN APPLICATION VIEW -->
+    <div id="app-view" class="hidden flex-col md:flex-row min-h-screen bg-orange-50/40">
+
+        <!-- SIDEBAR NAVIGATION -->
+        <aside class="w-full md:w-64 bg-stone-900 text-slate-300 flex flex-col justify-between shrink-0 shadow-xl border-r border-orange-900/30 no-print">
+            <div>
+                <div class="p-5 border-b border-orange-900/30 flex items-center gap-3 bg-stone-950/40">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-orange-600 to-amber-500 flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-orange-950/60">
+                        <i class="fa-solid fa-mortar-pestle"></i>
+                    </div>
+                    <div>
+                        <h1 class="font-bold text-amber-50 tracking-wide text-sm leading-tight">Bacting Pharmacy</h1>
+                        <p class="text-xs text-orange-400 font-medium">Employee Portal</p>
+                    </div>
+                </div>
+
+                <nav id="sidebar-nav-container" class="p-4 space-y-1.5">
+                    <!-- Populated dynamically based on role -->
+                </nav>
+            </div>
+
+            <div class="p-4 border-t border-orange-900/30 bg-stone-950/60 flex items-center justify-between">
+                <div class="flex items-center gap-3 overflow-hidden">
+                    <div id="sidebar-user-avatar" class="w-9 h-9 rounded-full bg-orange-600 text-white font-bold flex items-center justify-center shrink-0 shadow-inner">
+                        --
+                    </div>
+                    <div class="truncate">
+                        <div id="sidebar-user-name" class="text-sm font-bold text-amber-50 truncate">Loading...</div>
+                        <div id="sidebar-user-role" class="text-[10px] text-orange-400 uppercase tracking-wider font-semibold truncate">Staff Member</div>
+                    </div>
+                </div>
+                <button onclick="logout()" title="Log Out" class="p-2 text-stone-400 hover:text-rose-400 hover:bg-stone-800 rounded-lg transition-all shrink-0">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                </button>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT AREA -->
+        <main class="flex-1 bg-orange-50/50 flex flex-col overflow-y-auto custom-scrollbar">
+
+            <header class="bg-white/80 backdrop-blur-md border-b border-orange-200 px-6 py-4 flex flex-wrap justify-between items-center gap-4 sticky top-0 z-10 shadow-xs no-print">
+                <div>
+                    <h2 id="page-title" class="text-xl font-extrabold text-stone-800">Clock In / Clock Out Kiosk</h2>
+                    <p id="page-subtitle" class="text-xs text-orange-800/70 font-medium">Record shift duration and verify work schedule</p>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <!-- Weekly Task Form Button -->
+                    <a href="https://docs.google.com/forms/d/e/1FAIpQLSdpsFKhIFr75b2xPp0wXZberHl3j89ArgVDR5S8TVzvMSeU6Q/viewform" target="_blank" class="bg-orange-600 hover:bg-orange-500 text-white px-3.5 py-2 rounded-xl text-xs font-bold shadow-sm flex items-center gap-2 transition-all">
+                        <i class="fa-solid fa-list-check"></i> Weekly Task
+                    </a>
+
+                    <!-- Compact Firebase Indicator Button -->
+                    <div class="bg-stone-900 border border-stone-800 p-2.5 rounded-full shadow-sm flex items-center justify-center" title="Firebase Status">
+                        <span id="firebase-status-dot-inner" class="w-3 h-3 rounded-full bg-rose-600 shadow-sm shadow-rose-600/50 animate-pulse"></span>
+                    </div>
+
+                    <div class="flex items-center gap-4 bg-orange-100/60 px-4 py-2 rounded-2xl border border-orange-200/80 shadow-inner">
+                        <i class="fa-regular fa-clock text-orange-600 text-xl"></i>
+                        <div>
+                            <div id="live-clock" class="text-lg font-bold text-stone-800 tracking-wider font-mono">00:00:00 AM</div>
+                            <div id="live-date" class="text-xs text-orange-900/70 font-medium">Loading date...</div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="p-6 max-w-7xl w-full mx-auto space-y-6">
+
+                <!-- 1. CLOCK IN / OUT KIOSK TAB -->
+                <section id="tab-kiosk" class="tab-content space-y-6">
+                    <div class="bg-white rounded-3xl border border-orange-200 shadow-sm p-6 md:p-8 relative overflow-hidden">
+                        <div class="absolute top-0 right-0 translate-x-8 -translate-y-8 w-40 h-40 bg-orange-100/50 rounded-full blur-2xl pointer-events-none"></div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-12 gap-8 items-center relative z-10">
+                            
+                            <div class="md:col-span-5 flex flex-col items-center text-center p-6 bg-orange-50/60 rounded-2xl border border-orange-200/80">
+                                <div class="relative mb-4">
+                                    <div id="kiosk-avatar" class="w-24 h-24 rounded-full bg-gradient-to-br from-orange-500 to-amber-500 text-white font-black text-3xl flex items-center justify-center border-4 border-white shadow-lg">
+                                        JOH
+                                    </div>
+                                    <span id="kiosk-status-badge" class="absolute bottom-0 right-0 px-3 py-1 bg-stone-400 text-white text-xs font-bold rounded-full border-2 border-white shadow-sm flex items-center gap-1">
+                                        <span class="w-2 h-2 rounded-full bg-white"></span> OUT
+                                    </span>
+                                </div>
+                                <h3 id="kiosk-emp-name" class="text-2xl font-black text-stone-800">JOH</h3>
+                                <p id="kiosk-emp-role" class="text-xs font-semibold text-orange-800 mb-3 bg-orange-200/60 px-3 py-1 rounded-full border border-orange-300">Pharmacy Assistant</p>
+                                
+                                <div class="w-full grid grid-cols-2 gap-2 text-left mt-2 text-xs bg-white p-3.5 rounded-xl border border-orange-200/80 shadow-xs">
+                                    <div class="text-stone-500">Target Shift: <span class="font-bold text-stone-800 block text-sm">10 Hours</span></div>
+                                    <div class="text-stone-500">Shift Status: <span class="font-bold text-orange-600 block text-sm">Active Staff</span></div>
+                                    <div class="text-stone-500">Overtime Status: <span class="font-bold text-orange-600 block text-sm">+₱100 / hr</span></div>
+                                    <div class="text-stone-500">Assigned Cycle: <span id="kiosk-cycle-badge" class="font-extrabold text-orange-700 block text-sm">Sat - Fri</span></div>
+                                </div>
+                            </div>
+
+                            <div class="md:col-span-7 flex flex-col justify-center space-y-6">
+                                <div id="active-shift-box" class="bg-stone-900 text-white p-6 sm:p-8 rounded-3xl text-center space-y-2 relative overflow-hidden shadow-xl border border-orange-950">
+                                    <div class="text-xs uppercase tracking-widest text-orange-400 font-bold">Active Shift Duration</div>
+                                    <div id="shift-timer" class="text-4xl sm:text-6xl font-mono font-black tracking-wider text-amber-50 py-1">00:00:00</div>
+                                    <div class="flex justify-center items-center gap-4 text-xs sm:text-sm text-stone-300 pt-3 border-t border-stone-800">
+                                        <span>Clocked In At: <strong id="clock-in-time-label" class="text-white font-mono font-bold">--:--</strong></span>
+                                        <span>•</span>
+                                        <span>Fixed Shift: <strong class="text-orange-400 font-bold font-mono">₱400.00 (10 hrs)</strong></span>
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <button id="btn-clock-in" onclick="clockIn()" class="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-500 hover:to-amber-500 text-white font-black text-lg shadow-lg shadow-orange-600/30 transition-all flex items-center justify-center gap-3 transform active:scale-98">
+                                        <i class="fa-solid fa-play"></i> Clock In
+                                    </button>
+                                    <button id="btn-clock-out" onclick="clockOut()" disabled class="w-full py-4 px-6 rounded-2xl bg-stone-300 text-stone-500 font-black text-lg cursor-not-allowed transition-all flex items-center justify-center gap-3 transform active:scale-98">
+                                        <i class="fa-solid fa-stop"></i> Clock Out
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 2. MY SALARY DASHBOARD TAB -->
+                <section id="tab-my-summary" class="tab-content hidden space-y-6">
+                    <div class="bg-white p-4 rounded-2xl border border-orange-200 shadow-xs flex flex-wrap items-center justify-between gap-4">
+                        <div class="flex items-center gap-3">
+                            <span class="text-sm font-semibold text-stone-600"><i class="fa-solid fa-calendar-week mr-2 text-orange-600"></i>Assigned Pay Cycle:</span>
+                            <span id="cycle-type-label" class="text-sm font-bold text-stone-800 bg-orange-100/60 text-orange-900 px-3 py-1 rounded-lg border border-orange-200">
+                                Loading...
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Salary Breakdown Cards -->
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div class="bg-white p-5 rounded-2xl border border-orange-200 shadow-xs">
+                            <div class="flex justify-between items-start mb-2">
+                                <span class="text-xs font-semibold uppercase text-stone-400">Total Gross Salary</span>
+                                <span class="p-2 rounded-lg bg-orange-100 text-orange-600 text-xs"><i class="fa-solid fa-wallet"></i></span>
+                            </div>
+                            <div id="stat-gross-salary" class="text-2xl font-black text-stone-800 font-mono">₱0.00</div>
+                        </div>
+
+                        <div class="bg-white p-5 rounded-2xl border border-orange-200 shadow-xs">
+                            <div class="flex justify-between items-start mb-2">
+                                <span class="text-xs font-semibold uppercase text-stone-400">Total Deductions</span>
+                                <span class="p-2 rounded-lg bg-rose-100 text-rose-600 text-xs"><i class="fa-solid fa-receipt"></i></span>
+                            </div>
+                            <div id="stat-total-deductions" class="text-2xl font-black text-rose-600 font-mono">₱0.00</div>
+                        </div>
+
+                        <div class="bg-gradient-to-br from-stone-900 to-amber-950 text-white p-5 rounded-2xl shadow-md border border-orange-900/40">
+                            <div class="flex justify-between items-start mb-2">
+                                <span class="text-xs font-semibold uppercase text-orange-300">Net Take-Home Pay</span>
+                                <span class="p-2 rounded-lg bg-orange-500/20 text-orange-400 text-xs"><i class="fa-solid fa-peso-sign"></i></span>
+                            </div>
+                            <div id="stat-net-salary" class="text-3xl font-black text-amber-400 font-mono">₱0.00</div>
+                        </div>
+                    </div>
+
+                    <!-- Deductions Breakdown List Card -->
+                    <div class="bg-white rounded-2xl border border-orange-200 shadow-xs p-5 space-y-3">
+                        <h3 class="font-bold text-stone-800 text-sm uppercase tracking-wider"><i class="fa-solid fa-list-check mr-2 text-orange-600"></i>Active Deductions Breakdown</h3>
+                        <div id="employee-deductions-list-container" class="space-y-2">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Work Logs Table -->
+                    <div class="bg-white rounded-2xl border border-orange-200 shadow-xs overflow-hidden">
+                        <div class="p-5 border-b border-orange-100 flex justify-between items-center bg-orange-50/30">
+                            <h3 class="font-bold text-stone-800 text-base">Clock Logs for Active Pay Cycle</h3>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-sm">
+                                <thead class="bg-orange-100/50 text-stone-600 uppercase text-xs font-semibold">
+                                    <tr>
+                                        <th class="p-4">Date</th>
+                                        <th class="p-4">Clock In</th>
+                                        <th class="p-4">Clock Out</th>
+                                        <th class="p-4">Total Hours</th>
+                                        <th class="p-4">Shift Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="employee-logs-tbody" class="divide-y divide-orange-100 text-stone-700">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 3. CUSTOMIZE PIN TAB -->
+                <section id="tab-settings" class="tab-content hidden space-y-6">
+                    <div class="max-w-xl mx-auto bg-white p-6 sm:p-8 rounded-3xl border border-orange-200 shadow-xs space-y-6">
+                        <div class="border-b border-orange-100 pb-4">
+                            <h3 class="text-xl font-extrabold text-stone-800">Customize Security PIN</h3>
+                            <p class="text-xs text-stone-500">Update your account PIN anytime for secure logins.</p>
+                        </div>
+
+                        <form onsubmit="handlePinChange(event)" class="space-y-4">
+                            <div>
+                                <label class="block text-xs font-bold text-stone-600 uppercase mb-1">Current PIN</label>
+                                <input type="password" id="pin-current" required placeholder="••••" maxlength="8" class="w-full border border-orange-200 rounded-xl p-3 text-base font-mono focus:ring-2 focus:ring-orange-500 focus:outline-none">
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold text-stone-600 uppercase mb-1">New Security PIN</label>
+                                <input type="password" id="pin-new" required placeholder="Enter new PIN" maxlength="8" class="w-full border border-orange-200 rounded-xl p-3 text-base font-mono focus:ring-2 focus:ring-orange-500 focus:outline-none">
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold text-stone-600 uppercase mb-1">Confirm New Security PIN</label>
+                                <input type="password" id="pin-confirm" required placeholder="Confirm new PIN" maxlength="8" class="w-full border border-orange-200 rounded-xl p-3 text-base font-mono focus:ring-2 focus:ring-orange-500 focus:outline-none">
+                            </div>
+
+                            <button type="submit" class="w-full py-3 bg-orange-600 hover:bg-orange-500 text-white font-bold rounded-xl shadow-md transition-all text-sm">
+                                Update Security PIN
+                            </button>
+                        </form>
+                    </div>
+                </section>
+
+                <!-- 4. IN-APP MESSENGER TAB -->
+                <section id="tab-messages" class="tab-content hidden space-y-6">
+                    <div class="bg-white rounded-2xl border border-orange-200 shadow-xs overflow-hidden h-[600px] flex flex-col md:flex-row">
+                        <div class="w-full md:w-72 bg-stone-900 text-white flex flex-col border-r border-orange-950 shrink-0">
+                            <div class="p-4 border-b border-stone-800 flex justify-between items-center bg-stone-950/40">
+                                <span class="font-bold text-sm tracking-wide flex items-center gap-2 text-orange-200">
+                                    <i class="fa-solid fa-comments text-orange-500"></i> Staff Chat
+                                </span>
+                            </div>
+                            <div id="chat-contact-list" class="flex-1 overflow-y-auto custom-scrollbar p-2 space-y-1">
+                            </div>
+                        </div>
+
+                        <div class="flex-1 bg-orange-50/20 flex flex-col h-full">
+                            <div class="p-4 bg-white border-b border-orange-200 flex justify-between items-center shrink-0">
+                                <div class="flex items-center gap-3">
+                                    <div id="active-chat-avatar" class="w-10 h-10 rounded-full bg-gradient-to-tr from-orange-600 to-amber-500 text-white font-bold flex items-center justify-center shadow-xs">
+                                        --
+                                    </div>
+                                    <div>
+                                        <h4 id="active-chat-name" class="font-bold text-stone-800 text-sm">Select a Conversation</h4>
+                                        <p id="active-chat-subtext" class="text-xs text-stone-400">Direct Message Channel</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="chat-messages-container" class="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar">
+                            </div>
+
+                            <form onsubmit="sendMessage(event)" class="p-3 bg-white border-t border-orange-200 flex gap-2 shrink-0">
+                                <input type="text" id="chat-input-text" placeholder="Type a message or pharmacy shift update..." class="flex-1 bg-orange-50/40 border border-orange-200 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-orange-500 focus:outline-none">
+                                <button type="submit" class="px-5 py-2.5 bg-orange-600 hover:bg-orange-500 text-white font-bold rounded-xl shadow-md transition-all flex items-center gap-2 text-sm">
+                                    <span>Send</span> <i class="fa-solid fa-paper-plane text-xs"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 5. MANAGER PORTAL TAB -->
+                <section id="tab-manager" class="tab-content hidden space-y-6">
+                    <div id="manager-unlocked-content" class="space-y-6">
+                        <div class="flex flex-wrap items-center justify-between gap-4 bg-stone-900 text-white p-4 rounded-2xl shadow-md no-print border border-orange-950">
+                            <div class="flex items-center gap-2">
+                                <span class="w-3 h-3 rounded-full bg-orange-500 animate-pulse"></span>
+                                <span class="font-bold text-sm text-orange-100">Bacting Pharmacy Manager Console & Payroll</span>
+                            </div>
+
+                            <div class="flex items-center gap-2">
+                                <button onclick="openAddEmployeeModal()" class="px-3.5 py-2 bg-orange-600 hover:bg-orange-500 text-xs font-semibold rounded-lg transition-all flex items-center gap-1.5 shadow-sm text-white">
+                                    <i class="fa-solid fa-user-plus"></i> Add Employee
+                                </button>
+                                <button onclick="window.print()" class="px-3.5 py-2 bg-stone-800 hover:bg-stone-700 text-xs font-semibold rounded-lg border border-stone-700 transition-all flex items-center gap-1.5 text-orange-200">
+                                    <i class="fa-solid fa-print"></i> Print Payroll
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Payroll Summary Table -->
+                        <div class="bg-white rounded-2xl border border-orange-200 shadow-xs overflow-hidden print-full-width">
+                            <div class="p-5 border-b border-orange-100 bg-orange-50/30 flex justify-between items-center">
+                                <div>
+                                    <h3 class="font-bold text-stone-800 text-base">Pharmacy Payroll Summary & Deductions</h3>
+                                </div>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left text-sm">
+                                    <thead class="bg-orange-100/50 text-stone-600 uppercase text-xs font-semibold">
+                                        <tr>
+                                            <th class="p-4">Employee</th>
+                                            <th class="p-4">Pay Cycle</th>
+                                            <th class="p-4">Reg / OT Hours</th>
+                                            <th class="p-4">Gross Pay</th>
+                                            <th class="p-4">Deductions</th>
+                                            <th class="p-4">Net Payout</th>
+                                            <th class="p-4 no-print text-right">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="manager-payroll-tbody" class="divide-y divide-orange-100 text-stone-700">
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- MODAL: MANAGER PIN ACCESS -->
+    <div id="modal-manager-pin" class="fixed inset-0 bg-stone-950/80 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-stone-900 border border-orange-900/50 rounded-3xl max-w-sm w-full p-6 sm:p-8 shadow-2xl space-y-6 text-center">
+            <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-orange-600 to-amber-500 flex items-center justify-center text-white text-2xl mx-auto shadow-lg">
+                <i class="fa-solid fa-shield-halved"></i>
+            </div>
+            <div>
+                <h3 class="text-xl font-extrabold text-white">Manager Authorization</h3>
+                <p class="text-xs text-orange-200/70 mt-1">Enter Master PIN to access Manager Portal</p>
+            </div>
+            <form onsubmit="verifyManagerPin(event)" class="space-y-4">
+                <input type="password" id="manager-portal-pin-input" required placeholder="••••" maxlength="8" class="w-full bg-stone-800 border-2 border-orange-900 text-white text-center font-mono text-2xl font-black rounded-2xl p-3.5 focus:ring-4 focus:ring-orange-500/30 focus:border-orange-500 focus:outline-none tracking-[0.4em]">
+                <div class="flex gap-2 pt-2">
+                    <button type="button" onclick="closeManagerPinModal()" class="w-1/2 py-3 bg-stone-800 hover:bg-stone-700 text-stone-300 font-bold rounded-xl text-sm">Cancel</button>
+                    <button type="submit" class="w-1/2 py-3 bg-orange-600 hover:bg-orange-500 text-white font-bold rounded-xl text-sm shadow-md">Unlock</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: ADD EMPLOYEE -->
+    <div id="modal-add-employee" class="fixed inset-0 bg-stone-950/80 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-orange-200 space-y-6">
+            <div class="flex justify-between items-center border-b border-orange-100 pb-4">
+                <h3 class="text-xl font-extrabold text-stone-800">Add New Staff Member</h3>
+                <button onclick="closeAddEmployeeModal()" class="text-stone-400 hover:text-stone-600 p-1">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+
+            <form onsubmit="handleAddEmployee(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-stone-600 uppercase mb-1">Full Name</label>
+                    <input type="text" id="new-emp-name" required placeholder="e.g. John Doe" class="w-full border border-orange-200 rounded-xl p-3 text-sm focus:ring-2 focus:ring-orange-500 focus:outline-none">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-stone-600 uppercase mb-1">Role / Position</label>
+                    <select id="new-emp-role" class="w-full border border-orange-200 rounded-xl p-3 text-sm focus:ring-2 focus:ring-orange-500 focus:outline-none">
+                        <option value="Pharmacy Assistant">Pharmacy Assistant</option>
+                        <option value="Pharmacy Technician">Pharmacy Technician</option>
+                        <option value="Staff Pharmacist">Staff Pharmacist</option>
+                    </select>
+                </div>
+
+                <div class="space-y-2">
+                    <label class="block text-xs font-bold text-stone-600 uppercase mb-1">Access PIN</label>
+                    <input type="password" id="new-emp-pin" required maxlength="8" placeholder="••••" class="w-full border border-orange-200 rounded-xl p-3 text-sm font-mono focus:ring-2 focus:ring-orange-500 focus:outline-none">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-stone-600 uppercase mb-1">Assigned Pay Cycle</label>
+                    <select id="new-emp-cycle" class="w-full border border-orange-200 rounded-xl p-3 text-sm focus:ring-2 focus:ring-orange-500 focus:outline-none">
+                        <option value="sat-fri">Saturday - Friday Cycle</option>
+                        <option value="mon-sun">Monday - Sunday Cycle</option>
+                        <option value="sun-sat">Sunday - Saturday Cycle</option>
+                    </select>
+                </div>
+
+                <div class="pt-4 flex gap-3">
+                    <button type="button" onclick="closeAddEmployeeModal()" class="w-1/2 py-3 border border-stone-300 rounded-xl text-stone-600 font-bold text-sm hover:bg-stone-50">Cancel</button>
+                    <button type="submit" class="w-1/2 py-3 bg-orange-600 hover:bg-orange-500 text-white font-bold rounded-xl shadow-md text-sm">Save Member</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: MANAGE EMPLOYEE LOGS & MANUAL ADD -->
+    <div id="modal-manage-logs" class="fixed inset-0 bg-stone-950/80 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl border border-orange-200 space-y-6">
+            <div class="flex justify-between items-center border-b border-orange-100 pb-4">
+                <div>
+                    <h3 id="manage-logs-title" class="text-xl font-extrabold text-stone-800">Manage Shift Logs</h3>
+                    <p id="manage-logs-subtitle" class="text-xs text-stone-500">Review or add manual shift time in / out for staff</p>
+                </div>
+                <button onclick="closeManageLogsModal()" class="text-stone-400 hover:text-stone-600 p-1">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+
+            <!-- Manual Log Addition Form -->
+            <form onsubmit="handleManagerAddLog(event)" class="bg-orange-50/50 p-4 rounded-2xl border border-orange-200/80 space-y-3">
+                <input type="hidden" id="manage-emp-id">
+                <h4 class="text-xs font-bold text-orange-900 uppercase tracking-wider">Add Manual Shift Record</h4>
+                <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                    <div>
+                        <label class="block text-[11px] font-semibold text-stone-600 mb-1">Date</label>
+                        <input type="date" id="manual-log-date" required class="w-full bg-white border border-orange-200 rounded-xl p-2.5 text-xs">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-semibold text-stone-600 mb-1">Time In</label>
+                        <input type="time" id="manual-log-in" required class="w-full bg-white border border-orange-200 rounded-xl p-2.5 text-xs font-mono">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-semibold text-stone-600 mb-1">Time Out</label>
+                        <input type="time" id="manual-log-out" required class="w-full bg-white border border-orange-200 rounded-xl p-2.5 text-xs font-mono">
+                    </div>
+                    <div class="flex items-end">
+                        <button type="submit" class="w-full py-2.5 bg-orange-600 hover:bg-orange-500 text-white font-bold text-xs rounded-xl shadow-xs">
+                            + Add Record
+                        </button>
+                    </div>
+                </div>
+            </form>
+
+            <!-- Existing Logs List for Employee -->
+            <div class="space-y-2">
+                <h4 class="text-xs font-bold text-stone-700 uppercase tracking-wider">Existing Shift Logs</h4>
+                <div class="max-h-60 overflow-y-auto custom-scrollbar border border-stone-200 rounded-2xl">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-stone-100 text-stone-600 uppercase font-semibold">
+                            <tr>
+                                <th class="p-3">Date</th>
+                                <th class="p-3">In / Out</th>
+                                <th class="p-3">Total Hours</th>
+                                <th class="p-3 text-right">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="manager-modal-logs-tbody" class="divide-y divide-stone-100 text-stone-700">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="pt-2 text-right">
+                <button type="button" onclick="closeManageLogsModal()" class="px-5 py-2.5 bg-stone-800 text-white font-bold text-xs rounded-xl">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: MULTIPLE DEDUCTIONS MANAGEMENT -->
+    <div id="modal-deductions" class="fixed inset-0 bg-stone-950/80 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-orange-200 space-y-6">
+            <div class="flex justify-between items-center border-b border-orange-100 pb-4">
+                <div>
+                    <h3 class="text-xl font-extrabold text-stone-800">Manage Deductions</h3>
+                    <p id="deductions-emp-subtitle" class="text-xs text-stone-500">Add or remove multiple deductions</p>
+                </div>
+                <button onclick="closeDeductionsModal()" class="text-stone-400 hover:text-stone-600 p-1">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+
+            <!-- Add New Deduction Form -->
+            <form onsubmit="handleAddDeduction(event)" class="bg-orange-50/50 p-4 rounded-2xl border border-orange-200/80 space-y-3">
+                <input type="hidden" id="deductions-emp-id">
+                <h4 class="text-xs font-bold text-orange-900 uppercase tracking-wider">Add New Deduction Item</h4>
+                <div class="grid grid-cols-1 sm:grid-cols-5 gap-2">
+                    <div class="sm:col-span-2">
+                        <label class="block text-[11px] font-semibold text-stone-600 mb-1">Reason / Note</label>
+                        <input type="text" id="new-deduction-note" required placeholder="e.g. SSS / Uniform" class="w-full bg-white border border-orange-200 rounded-xl p-2.5 text-xs">
+                    </div>
+                    <div class="sm:col-span-2">
+                        <label class="block text-[11px] font-semibold text-stone-600 mb-1">Amount (₱)</label>
+                        <input type="number" step="1.00" id="new-deduction-amount" required placeholder="0.00" class="w-full bg-white border border-orange-200 rounded-xl p-2.5 text-xs font-mono">
+                    </div>
+                    <div class="flex items-end">
+                        <button type="submit" class="w-full py-2.5 bg-orange-600 hover:bg-orange-500 text-white font-bold text-xs rounded-xl shadow-xs">
+                            + Add
+                        </button>
+                    </div>
+                </div>
+            </form>
+
+            <!-- Existing Deductions List -->
+            <div class="space-y-2">
+                <h4 class="text-xs font-bold text-stone-700 uppercase tracking-wider">Current Deductions List</h4>
+                <div class="max-h-50 overflow-y-auto custom-scrollbar border border-stone-200 rounded-2xl">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-stone-100 text-stone-600 uppercase font-semibold">
+                            <tr>
+                                <th class="p-3">Reason / Note</th>
+                                <th class="p-3">Amount</th>
+                                <th class="p-3 text-right">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="manager-modal-deductions-tbody" class="divide-y divide-stone-100 text-stone-700">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="pt-2 text-right">
+                <button type="button" onclick="closeDeductionsModal()" class="px-5 py-2.5 bg-stone-800 text-white font-bold text-xs rounded-xl">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT APPLICATION LOGIC -->
+    <script>
+        const DEFAULT_EMPLOYEES = [
+            { id: 'emp_1', name: 'JOH', role: 'Pharmacy Assistant', pin: '1234', cycle: 'sat-fri', avatar: 'JO' },
+            { id: 'emp_2', name: 'ShIE', role: 'Pharmacy Technician', pin: '1234', cycle: 'sat-fri', avatar: 'SH' },
+            { id: 'emp_3', name: 'BEBE', role: 'Staff Pharmacist', pin: '1234', cycle: 'mon-sun', avatar: 'BE' }
+        ];
+
+        const MANAGER_PROFILE = {
+            id: 'mgr_1',
+            name: 'Pharmacy Manager',
+            role: 'Administrator / Mgr',
+            pin: '3054',
+            avatar: 'MG',
+            isManager: true
+        };
+
+        let storedEmployees = JSON.parse(localStorage.getItem('bacting_employees'));
+        let employees = (storedEmployees && storedEmployees.length > 0) ? storedEmployees : DEFAULT_EMPLOYEES;
+
+        let logs = JSON.parse(localStorage.getItem('bacting_logs')) || [];
+        let messages = JSON.parse(localStorage.getItem('bacting_messages')) || [];
+        let activeShifts = JSON.parse(localStorage.getItem('bacting_active_shifts')) || {};
+        let deductions = JSON.parse(localStorage.getItem('bacting_deductions_list')) || {};
+
+        let loginMode = 'employee';
+        let selectedEmpId = employees.length > 0 ? employees[0].id : null;
+        let currentUser = null;
+        let activeChatUserId = null;
+        let timerInterval = null;
+
+        window.addEventListener('DOMContentLoaded', () => {
+            initLiveClock();
+            renderLoginUserGrid();
+            setLoginMode('employee');
+        });
+
+        function saveState() {
+            localStorage.setItem('bacting_employees', JSON.stringify(employees));
+            localStorage.setItem('bacting_logs', JSON.stringify(logs));
+            localStorage.setItem('bacting_messages', JSON.stringify(messages));
+            localStorage.setItem('bacting_active_shifts', JSON.stringify(activeShifts));
+            localStorage.setItem('bacting_deductions_list', JSON.stringify(deductions));
+        }
+
+        function resetDataPrompt() {
+            if (confirm("Reset all local data back to initial state?")) {
+                localStorage.clear();
+                employees = DEFAULT_EMPLOYEES;
+                logs = [];
+                messages = [];
+                activeShifts = {};
+                deductions = {};
+                selectedEmpId = employees[0].id;
+                saveState();
+                location.reload();
+            }
+        }
+
+        function initLiveClock() {
+            function updateClock() {
+                const now = new Date();
+                const clockEl = document.getElementById('live-clock');
+                const dateEl = document.getElementById('live-date');
+                if (clockEl) clockEl.textContent = now.toLocaleTimeString();
+                if (dateEl) dateEl.textContent = now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+            }
+            updateClock();
+            setInterval(updateClock, 1000);
+        }
+
+        function setLoginMode(mode) {
+            loginMode = mode;
+            const empBtn = document.getElementById('tab-btn-emp');
+            const mgrBtn = document.getElementById('tab-btn-mgr');
+            const selectContainer = document.getElementById('emp-select-container');
+
+            if (mode === 'employee') {
+                empBtn.className = 'py-4 px-3 rounded-xl text-sm sm:text-base font-bold text-white bg-orange-600 shadow-lg transition-all flex items-center justify-center gap-2';
+                mgrBtn.className = 'py-4 px-3 rounded-xl text-sm sm:text-base font-bold text-orange-300 hover:text-white transition-all flex items-center justify-center gap-2';
+                selectContainer.classList.remove('hidden');
+            } else {
+                mgrBtn.className = 'py-4 px-3 rounded-xl text-sm sm:text-base font-bold text-white bg-orange-600 shadow-lg transition-all flex items-center justify-center gap-2';
+                empBtn.className = 'py-4 px-3 rounded-xl text-sm sm:text-base font-bold text-orange-300 hover:text-white transition-all flex items-center justify-center gap-2';
+                selectContainer.classList.add('hidden');
+            }
+            document.getElementById('login-pin-input').value = '';
+        }
+
+        function renderLoginUserGrid() {
+            const touchGrid = document.getElementById('emp-touch-grid');
+            if (!touchGrid) return;
+            touchGrid.innerHTML = '';
+
+            if (!selectedEmpId && employees.length > 0) {
+                selectedEmpId = employees[0].id;
+            }
+
+            employees.forEach((emp) => {
+                const isSelected = emp.id === selectedEmpId;
+                const card = document.createElement('button');
+                card.type = 'button';
+                card.onclick = () => {
+                    selectedEmpId = emp.id;
+                    renderLoginUserGrid();
+                };
+                card.className = `p-3 rounded-2xl border text-center transition-all flex flex-col items-center justify-center ${isSelected ? 'border-orange-500 bg-orange-950/80 text-white shadow-lg ring-2 ring-orange-500/40' : 'border-stone-800 bg-stone-800/40 text-stone-300 hover:border-orange-700'}`;
+                
+                card.innerHTML = `
+                    <div class="w-10 h-10 rounded-full ${isSelected ? 'bg-orange-600 text-white' : 'bg-stone-700 text-stone-200'} text-sm font-bold flex items-center justify-center mb-1 shadow-inner">${emp.avatar || emp.name.substring(0, 2).toUpperCase()}</div>
+                    <div class="text-xs font-extrabold truncate w-full text-white">${emp.name}</div>
+                    <div class="text-[9px] text-orange-300 uppercase tracking-wide font-medium mt-0.5">${emp.cycle || 'sat-fri'}</div>
+                `;
+                touchGrid.appendChild(card);
+            });
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const pinInput = document.getElementById('login-pin-input').value;
+
+            if (loginMode === 'employee') {
+                const emp = employees.find(e => e.id === selectedEmpId);
+
+                if (emp && emp.pin === pinInput) {
+                    currentUser = { ...emp, isManager: false };
+                    launchAppView();
+                } else {
+                    alert('Invalid Security PIN for selected staff.');
+                }
+            } else {
+                if (pinInput === MANAGER_PROFILE.pin) {
+                    currentUser = { ...MANAGER_PROFILE };
+                    launchAppView();
+                } else {
+                    alert('Invalid Manager PIN.');
+                }
+            }
+        }
+
+        function renderRoleSidebarNav() {
+            const navContainer = document.getElementById('sidebar-nav-container');
+            navContainer.innerHTML = '';
+
+            if (currentUser.isManager) {
+                navContainer.innerHTML = `
+                    <button onclick="switchTab('manager')" id="nav-manager" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all bg-orange-600 text-white shadow-md shadow-orange-950/40 justify-between">
+                        <div class="flex items-center gap-3">
+                            <i class="fa-solid fa-user-doctor w-5 text-center text-lg"></i>
+                            <span>Manager Portal</span>
+                        </div>
+                    </button>
+                    <button onclick="switchTab('messages')" id="nav-messages" class="nav-btn w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-semibold text-stone-400 hover:bg-stone-800 hover:text-orange-200 transition-all">
+                        <div class="flex items-center gap-3">
+                            <i class="fa-solid fa-comments w-5 text-center text-lg"></i>
+                            <span>Staff Chat</span>
+                        </div>
+                        <span id="sidebar-chat-badge" class="hidden px-2 py-0.5 bg-rose-600 text-white font-black text-[10px] rounded-full animate-bounce">0</span>
+                    </button>
+                    <button onclick="switchTab('settings')" id="nav-settings" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-stone-400 hover:bg-stone-800 hover:text-orange-200 transition-all">
+                        <i class="fa-solid fa-key w-5 text-center text-lg"></i>
+                        <span>Change PIN</span>
+                    </button>
+                `;
+            } else {
+                navContainer.innerHTML = `
+                    <button onclick="switchTab('kiosk')" id="nav-kiosk" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all bg-orange-600 text-white shadow-md shadow-orange-950/40">
+                        <i class="fa-solid fa-clock w-5 text-center text-lg"></i>
+                        <span>Clock In / Out</span>
+                    </button>
+                    <button onclick="switchTab('my-summary')" id="nav-my-summary" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-stone-400 hover:bg-stone-800 hover:text-orange-200 transition-all">
+                        <i class="fa-solid fa-calendar-check w-5 text-center text-lg"></i>
+                        <span id="nav-summary-label">My Salary Dashboard</span>
+                    </button>
+                    <button onclick="switchTab('messages')" id="nav-messages" class="nav-btn w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-semibold text-stone-400 hover:bg-stone-800 hover:text-orange-200 transition-all">
+                        <div class="flex items-center gap-3">
+                            <i class="fa-solid fa-comments w-5 text-center text-lg"></i>
+                            <span>Staff Chat</span>
+                        </div>
+                        <span id="sidebar-chat-badge" class="hidden px-2 py-0.5 bg-rose-600 text-white font-black text-[10px] rounded-full animate-bounce">0</span>
+                    </button>
+                    <button onclick="switchTab('settings')" id="nav-settings" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-stone-400 hover:bg-stone-800 hover:text-orange-200 transition-all">
+                        <i class="fa-solid fa-key w-5 text-center text-lg"></i>
+                        <span>Change PIN</span>
+                    </button>
+                    <button onclick="requestManagerPortalAccess()" id="nav-manager" class="nav-btn w-full items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-stone-400 hover:bg-stone-800 hover:text-orange-200 transition-all justify-between flex">
+                        <div class="flex items-center gap-3">
+                            <i class="fa-solid fa-user-doctor w-5 text-center text-lg"></i>
+                            <span>Manager Portal</span>
+                        </div>
+                        <span class="text-[10px] bg-orange-950 text-orange-400 px-2 py-0.5 rounded border border-orange-800 font-bold">PIN Lock</span>
+                    </button>
+                `;
+            }
+        }
+
+        function launchAppView() {
+            document.getElementById('login-view').classList.add('hidden');
+            document.getElementById('app-view').classList.remove('hidden');
+            document.getElementById('app-view').classList.add('flex');
+
+            document.getElementById('sidebar-user-name').textContent = currentUser.name;
+            document.getElementById('sidebar-user-role').textContent = currentUser.role;
+            document.getElementById('sidebar-user-avatar').textContent = currentUser.avatar;
+
+            renderRoleSidebarNav();
+
+            if (currentUser.isManager) {
+                switchTab('manager');
+            } else {
+                switchTab('kiosk');
+                updateKioskUI();
+                renderMySummaryTab();
+            }
+
+            renderChatTab();
+            renderManagerPortal();
+        }
+
+        function logout() {
+            currentUser = null;
+            clearInterval(timerInterval);
+            document.getElementById('app-view').classList.add('hidden');
+            document.getElementById('app-view').classList.remove('flex');
+            document.getElementById('login-view').classList.remove('hidden');
+            renderLoginUserGrid();
+        }
+
+        function requestManagerPortalAccess() {
+            if (currentUser && currentUser.isManager) {
+                switchTab('manager');
+            } else {
+                document.getElementById('manager-portal-pin-input').value = '';
+                document.getElementById('modal-manager-pin').classList.remove('hidden');
+            }
+        }
+
+        function closeManagerPinModal() {
+            document.getElementById('modal-manager-pin').classList.add('hidden');
+        }
+
+        function verifyManagerPin(e) {
+            e.preventDefault();
+            const pin = document.getElementById('manager-portal-pin-input').value;
+            if (pin === MANAGER_PROFILE.pin) {
+                closeManagerPinModal();
+                currentUser = { ...MANAGER_PROFILE };
+                document.getElementById('sidebar-user-name').textContent = currentUser.name;
+                document.getElementById('sidebar-user-role').textContent = currentUser.role;
+                document.getElementById('sidebar-user-avatar').textContent = currentUser.avatar;
+                renderRoleSidebarNav();
+                switchTab('manager');
+                renderManagerPortal();
+            } else {
+                alert('Incorrect Manager PIN.');
+            }
+        }
+
+        function switchTab(tabName) {
+            const tabs = ['kiosk', 'my-summary', 'messages', 'settings', 'manager'];
+            tabs.forEach(t => {
+                const content = document.getElementById(`tab-${t}`);
+                const navBtn = document.getElementById(`nav-${t}`);
+                if (content) content.classList.add('hidden');
+                if (navBtn) {
+                    navBtn.className = 'nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-stone-400 hover:bg-stone-800 hover:text-orange-200 transition-all justify-between';
+                }
+            });
+
+            const targetContent = document.getElementById(`tab-${tabName}`);
+            const targetBtn = document.getElementById(`nav-${tabName}`);
+            if (targetContent) targetContent.classList.remove('hidden');
+            if (targetBtn) {
+                targetBtn.className = 'nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all bg-orange-600 text-white shadow-md shadow-orange-950/40 justify-between';
+            }
+
+            const titles = {
+                'kiosk': ['Clock In / Clock Out Kiosk', 'Record shift duration and verify work schedule'],
+                'my-summary': ['My Salary Dashboard', 'Personal earnings, multiple deductions, and shift logs'],
+                'messages': ['Staff Chat Channel', 'Direct communication between employees and manager'],
+                'settings': ['Customize Security PIN', 'Update your personal access PIN anytime'],
+                'manager': ['Bacting Pharmacy Manager Portal', 'Confidential staff payroll, overtime calculation, and duty oversight']
+            };
+
+            if (titles[tabName]) {
+                document.getElementById('page-title').textContent = titles[tabName][0];
+                document.getElementById('page-subtitle').textContent = titles[tabName][1];
+            }
+
+            if (tabName === 'messages') {
+                markConversationAsRead(activeChatUserId);
+            }
+        }
+
+        function handlePinChange(e) {
+            e.preventDefault();
+            const currentPin = document.getElementById('pin-current').value;
+            const newPin = document.getElementById('pin-new').value;
+            const confirmPin = document.getElementById('pin-confirm').value;
+
+            if (currentPin !== currentUser.pin) {
+                alert('Current PIN is incorrect.');
+                return;
+            }
+
+            if (newPin !== confirmPin) {
+                alert('New PINs do not match.');
+                return;
+            }
+
+            if (newPin.length < 4) {
+                alert('PIN should be at least 4 digits.');
+                return;
+            }
+
+            currentUser.pin = newPin;
+
+            if (!currentUser.isManager) {
+                const idx = employees.findIndex(e => e.id === currentUser.id);
+                if (idx !== -1) {
+                    employees[idx].pin = newPin;
+                }
+            } else {
+                MANAGER_PROFILE.pin = newPin;
+            }
+
+            saveState();
+            document.getElementById('pin-current').value = '';
+            document.getElementById('pin-new').value = '';
+            document.getElementById('pin-confirm').value = '';
+
+            alert('Your PIN has been updated successfully!');
+        }
+
+        function updateKioskUI() {
+            if (!currentUser || currentUser.isManager) return;
+
+            document.getElementById('kiosk-avatar').textContent = currentUser.avatar;
+            document.getElementById('kiosk-emp-name').textContent = currentUser.name;
+            document.getElementById('kiosk-emp-role').textContent = currentUser.role;
+            document.getElementById('kiosk-cycle-badge').textContent = (currentUser.cycle || 'sat-fri').toUpperCase();
+
+            const shift = activeShifts[currentUser.id];
+            const statusBadge = document.getElementById('kiosk-status-badge');
+            const btnIn = document.getElementById('btn-clock-in');
+            const btnOut = document.getElementById('btn-clock-out');
+            const timerLabel = document.getElementById('shift-timer');
+            const clockInLabel = document.getElementById('clock-in-time-label');
+
+            if (shift) {
+                statusBadge.className = 'absolute bottom-0 right-0 px-3 py-1 bg-emerald-600 text-white text-xs font-bold rounded-full border-2 border-white shadow-sm flex items-center gap-1';
+                statusBadge.innerHTML = '<span class="w-2 h-2 rounded-full bg-white animate-ping"></span> ON DUTY';
+
+                btnIn.disabled = true;
+                btnIn.className = 'w-full py-4 px-6 rounded-2xl bg-stone-300 text-stone-500 font-black text-lg cursor-not-allowed transition-all flex items-center justify-center gap-3';
+                
+                btnOut.disabled = false;
+                btnOut.className = 'w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-500 hover:to-red-500 text-white font-black text-lg shadow-lg shadow-rose-600/30 transition-all flex items-center justify-center gap-3 transform active:scale-98';
+
+                const startTime = new Date(shift.startTime);
+                clockInLabel.textContent = startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+                clearInterval(timerInterval);
+                timerInterval = setInterval(() => {
+                    const elapsed = Math.floor((new Date() - startTime) / 1000);
+                    const hrs = String(Math.floor(elapsed / 3600)).padStart(2, '0');
+                    const mins = String(Math.floor((elapsed % 3600) / 60)).padStart(2, '0');
+                    const secs = String(elapsed % 60).padStart(2, '0');
+                    timerLabel.textContent = `${hrs}:${mins}:${secs}`;
+                }, 1000);
+
+            } else {
+                statusBadge.className = 'absolute bottom-0 right-0 px-3 py-1 bg-stone-500 text-white text-xs font-bold rounded-full border-2 border-white shadow-sm flex items-center gap-1';
+                statusBadge.innerHTML = '<span class="w-2 h-2 rounded-full bg-stone-300"></span> OFF DUTY';
+
+                btnIn.disabled = false;
+                btnIn.className = 'w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-500 hover:to-amber-500 text-white font-black text-lg shadow-lg shadow-orange-600/30 transition-all flex items-center justify-center gap-3 transform active:scale-98';
+
+                btnOut.disabled = true;
+                btnOut.className = 'w-full py-4 px-6 rounded-2xl bg-stone-300 text-stone-500 font-black text-lg cursor-not-allowed transition-all flex items-center justify-center gap-3';
+
+                clockInLabel.textContent = '--:--';
+                timerLabel.textContent = '00:00:00';
+                clearInterval(timerInterval);
+            }
+        }
+
+        // Apply 30 mins grace period rounding logic
+        function applyGraceRounding(durationHours) {
+            const totalMins = Math.round(durationHours * 60);
+            const wholeHours = Math.floor(totalMins / 60);
+            const remainderMins = totalMins % 60;
+
+            if (remainderMins === 0) return wholeHours;
+
+            if (remainderMins < 30) {
+                return wholeHours;
+            } else {
+                return wholeHours + 1;
+            }
+        }
+
+        function calculateGrossPay(totalHours) {
+            if (totalHours >= 10) {
+                const otHours = totalHours - 10;
+                return 400 + (otHours * 100);
+            } else {
+                return totalHours * 40;
+            }
+        }
+
+        function clockIn() {
+            if (!currentUser || currentUser.isManager) return;
+            if (activeShifts[currentUser.id]) return;
+
+            activeShifts[currentUser.id] = {
+                startTime: new Date().toISOString(),
+                empId: currentUser.id
+            };
+            saveState();
+            updateKioskUI();
+            alert(`Clocked In successfully at ${new Date().toLocaleTimeString()}`);
+        }
+
+        function clockOut() {
+            if (!currentUser || currentUser.isManager || !activeShifts[currentUser.id]) return;
+
+            const shift = activeShifts[currentUser.id];
+            const startTime = new Date(shift.startTime);
+            const endTime = new Date();
+            const rawDurationHours = (endTime - startTime) / (1000 * 60 * 60);
+            const roundedHours = applyGraceRounding(rawDurationHours);
+
+            const newLog = {
+                id: 'log_' + Date.now(),
+                empId: currentUser.id,
+                date: endTime.toISOString().split('T')[0],
+                clockIn: startTime.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' }),
+                clockOut: endTime.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' }),
+                totalHours: roundedHours
+            };
+
+            logs.unshift(newLog);
+            delete activeShifts[currentUser.id];
+            saveState();
+
+            updateKioskUI();
+            renderMySummaryTab();
+            renderManagerPortal();
+
+            alert(`Clocked Out successfully. Duration: ${roundedHours} hours (rounded).`);
+        }
+
+        function renderMySummaryTab() {
+            if (!currentUser || currentUser.isManager) return;
+
+            const userLogs = logs.filter(l => l.empId === currentUser.id);
+            const tbody = document.getElementById('employee-logs-tbody');
+            tbody.innerHTML = '';
+
+            let totalGross = 0;
+            let totalReg = 0;
+            let totalOt = 0;
+
+            userLogs.forEach(log => {
+                const hrs = log.totalHours;
+                const reg = Math.min(hrs, 10.0);
+                const ot = Math.max(0, hrs - 10.0);
+                totalReg += reg;
+                totalOt += ot;
+                totalGross += calculateGrossPay(hrs);
+
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-orange-50/40 transition-colors';
+                tr.innerHTML = `
+                    <td class="p-4 font-semibold text-stone-800">${log.date}</td>
+                    <td class="p-4 font-mono">${log.clockIn || 'Manual'}</td>
+                    <td class="p-4 font-mono">${log.clockOut || 'Manual'}</td>
+                    <td class="p-4 font-bold text-stone-800">${log.totalHours.toFixed(1)} hrs</td>
+                    <td class="p-4">
+                        ${ot > 0 
+                            ? `<span class="px-2.5 py-1 bg-amber-100 text-amber-800 font-bold text-xs rounded-full border border-amber-200">+${ot.toFixed(1)}h Overtime</span>`
+                            : `<span class="px-2.5 py-1 bg-emerald-100 text-emerald-800 font-bold text-xs rounded-full border border-emerald-200">Standard 10h</span>`}
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            // Retrieve multiple deductions for user
+            const userDeductions = deductions[currentUser.id] || [];
+            let totalDeductionAmount = 0;
+            const deductionsContainer = document.getElementById('employee-deductions-list-container');
+            deductionsContainer.innerHTML = '';
+
+            if (userDeductions.length === 0) {
+                deductionsContainer.innerHTML = `<div class="text-xs text-stone-400 italic p-2">No active deductions recorded for this cycle.</div>`;
+            } else {
+                userDeductions.forEach(d => {
+                    totalDeductionAmount += parseFloat(d.amount) || 0;
+                    const item = document.createElement('div');
+                    item.className = 'p-3 rounded-xl bg-orange-50/60 border border-orange-200 flex justify-between items-center text-xs';
+                    item.innerHTML = `
+                        <span class="font-medium text-stone-700"><i class="fa-solid fa-tag text-orange-600 mr-2"></i>${d.note}</span>
+                        <span class="font-bold text-rose-600 font-mono">-₱${parseFloat(d.amount).toLocaleString('en-PH', {minimumFractionDigits: 2})}</span>
+                    `;
+                    deductionsContainer.appendChild(item);
+                });
+            }
+
+            const netPay = Math.max(0, totalGross - totalDeductionAmount);
+
+            document.getElementById('stat-gross-salary').textContent = `₱${totalGross.toLocaleString('en-PH', {minimumFractionDigits: 2})}`;
+            document.getElementById('stat-total-deductions').textContent = `₱${totalDeductionAmount.toLocaleString('en-PH', {minimumFractionDigits: 2})}`;
+            document.getElementById('stat-net-salary').textContent = `₱${netPay.toLocaleString('en-PH', {minimumFractionDigits: 2})}`;
+
+            document.getElementById('cycle-type-label').textContent = (currentUser.cycle || 'sat-fri').toUpperCase() + ' Pay Cycle';
+        }
+
+        function updateUnreadBadges() {
+            if (!currentUser) return;
+
+            let totalUnreadCount = 0;
+            const contacts = [];
+            if (currentUser.isManager) {
+                employees.forEach(emp => contacts.push(emp));
+            } else {
+                contacts.push(MANAGER_PROFILE);
+                employees.forEach(emp => {
+                    if (emp.id !== currentUser.id) contacts.push(emp);
+                });
+            }
+
+            contacts.forEach(contact => {
+                const unreadCount = messages.filter(m => m.senderId === contact.id && m.receiverId === currentUser.id && !m.read).length;
+                contact.unreadCount = unreadCount;
+                totalUnreadCount += unreadCount;
+            });
+
+            const sidebarBadge = document.getElementById('sidebar-chat-badge');
+            if (sidebarBadge) {
+                if (totalUnreadCount > 0) {
+                    sidebarBadge.textContent = totalUnreadCount;
+                    sidebarBadge.classList.remove('hidden');
+                } else {
+                    sidebarBadge.classList.add('hidden');
+                }
+            }
+        }
+
+        function markConversationAsRead(contactId) {
+            if (!contactId || !currentUser) return;
+            let updated = false;
+            messages.forEach(m => {
+                if (m.senderId === contactId && m.receiverId === currentUser.id && !m.read) {
+                    m.read = true;
+                    updated = true;
+                }
+            });
+            if (updated) {
+                saveState();
+                updateUnreadBadges();
+            }
+        }
+
+        function renderChatTab() {
+            if (!currentUser) return;
+
+            updateUnreadBadges();
+            const contactList = document.getElementById('chat-contact-list');
+            contactList.innerHTML = '';
+
+            const contacts = [];
+            if (currentUser.isManager) {
+                employees.forEach(emp => contacts.push(emp));
+            } else {
+                contacts.push(MANAGER_PROFILE);
+                employees.forEach(emp => {
+                    if (emp.id !== currentUser.id) contacts.push(emp);
+                });
+            }
+
+            if (!activeChatUserId && contacts.length > 0) {
+                activeChatUserId = contacts[0].id;
+            }
+
+            contacts.forEach(contact => {
+                const unreadCount = messages.filter(m => m.senderId === contact.id && m.receiverId === currentUser.id && !m.read).length;
+                const btn = document.createElement('button');
+                btn.onclick = () => {
+                    selectChatContact(contact.id);
+                };
+                const isActive = contact.id === activeChatUserId;
+                btn.className = `w-full p-3 rounded-xl flex items-center justify-between transition-all text-left ${isActive ? 'bg-orange-600 text-white font-bold shadow-md' : 'hover:bg-stone-800 text-stone-300'}`;
+                
+                btn.innerHTML = `
+                    <div class="flex items-center gap-3 truncate">
+                        <div class="w-8 h-8 rounded-full ${isActive ? 'bg-white text-orange-600' : 'bg-orange-600 text-white'} text-xs font-bold flex items-center justify-center shrink-0">
+                            ${contact.avatar}
+                        </div>
+                        <div class="truncate">
+                            <div class="text-xs font-bold truncate">${contact.name}</div>
+                            <div class="text-[10px] ${isActive ? 'text-orange-100' : 'text-stone-400'} truncate">${contact.role}</div>
+                        </div>
+                    </div>
+                    ${unreadCount > 0 ? `<span class="px-2 py-0.5 bg-rose-600 text-white text-[10px] font-black rounded-full shrink-0 shadow-sm">${unreadCount}</span>` : ''}
+                `;
+                contactList.appendChild(btn);
+            });
+
+            renderChatMessages();
+        }
+
+        function selectChatContact(contactId) {
+            activeChatUserId = contactId;
+            markConversationAsRead(contactId);
+            renderChatTab();
+        }
+
+        function renderChatMessages() {
+            const container = document.getElementById('chat-messages-container');
+            container.innerHTML = '';
+
+            if (!activeChatUserId) return;
+
+            let contact = employees.find(e => e.id === activeChatUserId) || (activeChatUserId === MANAGER_PROFILE.id ? MANAGER_PROFILE : null);
+            if (!contact) return;
+
+            document.getElementById('active-chat-name').textContent = contact.name;
+            document.getElementById('active-chat-subtext').textContent = contact.role;
+            document.getElementById('active-chat-avatar').textContent = contact.avatar;
+
+            const conversation = messages.filter(m => 
+                (m.senderId === currentUser.id && m.receiverId === activeChatUserId) ||
+                (m.senderId === activeChatUserId && m.receiverId === currentUser.id)
+            );
+
+            if (conversation.length === 0) {
+                container.innerHTML = `<div class="text-center text-stone-400 text-xs py-10">No messages yet with ${contact.name}.</div>`;
+                return;
+            }
+
+            conversation.forEach(msg => {
+                const isMe = msg.senderId === currentUser.id;
+                const wrapper = document.createElement('div');
+                wrapper.className = `flex ${isMe ? 'justify-end' : 'justify-start'}`;
+
+                wrapper.innerHTML = `
+                    <div class="max-w-[75%] ${isMe ? 'bg-orange-600 text-white rounded-2xl rounded-tr-xs' : 'bg-white text-stone-800 rounded-2xl rounded-tl-xs border border-orange-200'} p-3.5 shadow-xs space-y-1">
+                        <p class="text-sm">${msg.text}</p>
+                        <div class="text-[10px] ${isMe ? 'text-orange-200' : 'text-stone-400'} text-right font-medium">${msg.time}</div>
+                    </div>
+                `;
+                container.appendChild(wrapper);
+            });
+
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function sendMessage(e) {
+            e.preventDefault();
+            const input = document.getElementById('chat-input-text');
+            const text = input.value.trim();
+            if (!text || !activeChatUserId) return;
+
+            const newMsg = {
+                id: 'm_' + Date.now(),
+                senderId: currentUser.id,
+                receiverId: activeChatUserId,
+                text: text,
+                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                read: false
+            };
+
+            messages.push(newMsg);
+            saveState();
+            input.value = '';
+            renderChatMessages();
+            updateUnreadBadges();
+        }
+
+        function renderManagerPortal() {
+            if (!currentUser || !currentUser.isManager) return;
+
+            const payrollTbody = document.getElementById('manager-payroll-tbody');
+            payrollTbody.innerHTML = '';
+
+            employees.forEach(emp => {
+                const empLogs = logs.filter(l => l.empId === emp.id);
+                let totalGrossPay = 0;
+                let totalRegHours = 0;
+                let totalOtHours = 0;
+
+                empLogs.forEach(l => {
+                    const hrs = l.totalHours;
+                    totalGrossPay += calculateGrossPay(hrs);
+                    totalRegHours += Math.min(hrs, 10);
+                    totalOtHours += Math.max(0, hrs - 10);
+                });
+
+                const isMissing = empLogs.length === 0;
+
+                const empDeductionsList = deductions[emp.id] || [];
+                let totalDeductionAmount = 0;
+                empDeductionsList.forEach(d => {
+                    totalDeductionAmount += parseFloat(d.amount) || 0;
+                });
+
+                const netPayout = Math.max(0, totalGrossPay - totalDeductionAmount);
+
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-orange-50/40 transition-colors';
+                tr.innerHTML = `
+                    <td class="p-4 font-bold text-stone-800 flex items-center gap-2">
+                        <div class="w-7 h-7 rounded-full bg-orange-600 text-white text-xs flex items-center justify-center font-bold">${emp.avatar}</div>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <span>${emp.name}</span>
+                                ${isMissing ? '<span class="px-2 py-0.5 bg-rose-100 text-rose-700 text-[10px] font-extrabold rounded-full border border-rose-200">Missing / No Logs</span>' : ''}
+                            </div>
+                            <div class="text-[10px] text-orange-800 font-normal">${emp.role}</div>
+                        </div>
+                    </td>
+                    <td class="p-4 uppercase text-xs font-semibold text-stone-500">${emp.cycle || 'sat-fri'}</td>
+                    <td class="p-4 text-xs">
+                        <span class="font-bold text-stone-800">${totalRegHours.toFixed(1)}h Reg</span><br>
+                        <span class="font-semibold text-orange-600">+${totalOtHours.toFixed(1)}h OT</span>
+                    </td>
+                    <td class="p-4 font-mono font-bold text-stone-800">₱${totalGrossPay.toLocaleString('en-PH', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                    <td class="p-4 text-xs">
+                        <span class="font-mono font-bold text-rose-600">-₱${totalDeductionAmount.toLocaleString('en-PH', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span><br>
+                        <span class="text-[10px] text-stone-500 italic">${empDeductionsList.length} item(s)</span>
+                    </td>
+                    <td class="p-4 font-black text-amber-700 text-base font-mono">₱${netPayout.toLocaleString('en-PH', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                    <td class="p-4 no-print text-right space-x-2">
+                        <button onclick="openManageLogsModal('${emp.id}')" class="px-2.5 py-1.5 bg-orange-100 hover:bg-orange-200 text-orange-800 text-xs font-bold rounded-lg transition-all" title="Edit / Add Logs">
+                            <i class="fa-solid fa-clock-rotate-left"></i> Logs
+                        </button>
+                        <button onclick="openDeductionsModal('${emp.id}')" class="px-2.5 py-1.5 bg-stone-200 hover:bg-stone-300 text-stone-800 text-xs font-bold rounded-lg transition-all" title="Manage Deductions">
+                            <i class="fa-solid fa-receipt"></i> Deductions
+                        </button>
+                        <button onclick="deleteEmployee('${emp.id}')" class="px-2 py-1.5 text-rose-600 hover:text-rose-800 text-xs font-semibold" title="Remove Employee">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+                payrollTbody.appendChild(tr);
+            });
+        }
+
+        // Manage Logs Modal functions
+        function openManageLogsModal(empId) {
+            const emp = employees.find(e => e.id === empId);
+            if (!emp) return;
+
+            document.getElementById('manage-emp-id').value = emp.id;
+            document.getElementById('manage-logs-title').textContent = `Manage Logs: ${emp.name}`;
+            document.getElementById('manual-log-date').value = new Date().toISOString().split('T')[0];
+            document.getElementById('manual-log-in').value = '08:00';
+            document.getElementById('manual-log-out').value = '18:00';
+
+            renderModalLogsList(empId);
+            document.getElementById('modal-manage-logs').classList.remove('hidden');
+        }
+
+        function closeManageLogsModal() {
+            document.getElementById('modal-manage-logs').classList.add('hidden');
+        }
+
+        function renderModalLogsList(empId) {
+            const empLogs = logs.filter(l => l.empId === empId);
+            const tbody = document.getElementById('manager-modal-logs-tbody');
+            tbody.innerHTML = '';
+
+            if (empLogs.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-stone-400">No shift logs found for this employee.</td></tr>`;
+                return;
+            }
+
+            empLogs.forEach(log => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="p-3 font-semibold">${log.date}</td>
+                    <td class="p-3 font-mono text-stone-500">${log.clockIn || '--'} / ${log.clockOut || '--'}</td>
+                    <td class="p-3 font-bold text-stone-800">${log.totalHours.toFixed(1)} hrs</td>
+                    <td class="p-3 text-right">
+                        <button onclick="deleteLog('${log.id}', '${empId}')" class="text-rose-600 hover:text-rose-800 font-bold px-2 py-1"><i class="fa-solid fa-xmark"></i></button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function handleManagerAddLog(e) {
+            e.preventDefault();
+            const empId = document.getElementById('manage-emp-id').value;
+            const date = document.getElementById('manual-log-date').value;
+            const timeIn = document.getElementById('manual-log-in').value;
+            const timeOut = document.getElementById('manual-log-out').value;
+
+            if (!date || !timeIn || !timeOut) {
+                alert('Please provide a date, time in, and time out.');
+                return;
+            }
+
+            const [inHours, inMins] = timeIn.split(':').map(Number);
+            const [outHours, outMins] = timeOut.split(':').map(Number);
+
+            const inTotalMins = inHours * 60 + inMins;
+            const outTotalMins = outHours * 60 + outMins;
+
+            let diffMins = outTotalMins - inTotalMins;
+            if (diffMins <= 0) {
+                diffMins += 24 * 60;
+            }
+
+            const rawDurationHours = diffMins / 60;
+            const roundedHours = applyGraceRounding(rawDurationHours);
+
+            const newLog = {
+                id: 'log_' + Date.now(),
+                empId: empId,
+                date: date,
+                clockIn: timeIn,
+                clockOut: timeOut,
+                totalHours: roundedHours
+            };
+
+            logs.unshift(newLog);
+            saveState();
+            renderModalLogsList(empId);
+            renderManagerPortal();
+            alert(`Manual shift log added successfully! Rounded Duration: ${roundedHours} hours.`);
+        }
+
+        function deleteLog(logId, empId) {
+            if (confirm("Delete this shift log entry?")) {
+                logs = logs.filter(l => l.id !== logId);
+                saveState();
+                renderModalLogsList(empId);
+                renderManagerPortal();
+            }
+        }
+
+        // Multi-Deductions Modal Functions
+        function openDeductionsModal(empId) {
+            const emp = employees.find(e => e.id === empId);
+            if (!emp) return;
+
+            document.getElementById('deductions-emp-id').value = emp.id;
+            document.getElementById('deductions-emp-subtitle').textContent = `Manage deductions for ${emp.name}`;
+            document.getElementById('new-deduction-note').value = '';
+            document.getElementById('new-deduction-amount').value = '';
+
+            renderModalDeductionsList(empId);
+            document.getElementById('modal-deductions').classList.remove('hidden');
+        }
+
+        function closeDeductionsModal() {
+            document.getElementById('modal-deductions').classList.add('hidden');
+            renderManagerPortal();
+        }
+
+        function renderModalDeductionsList(empId) {
+            const empDedList = deductions[empId] || [];
+            const tbody = document.getElementById('manager-modal-deductions-tbody');
+            tbody.innerHTML = '';
+
+            if (empDedList.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="3" class="p-4 text-center text-stone-400">No deductions added yet.</td></tr>`;
+                return;
+            }
+
+            empDedList.forEach(d => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="p-3 font-semibold text-stone-800">${d.note}</td>
+                    <td class="p-3 font-mono font-bold text-rose-600">-₱${parseFloat(d.amount).toLocaleString('en-PH', {minimumFractionDigits: 2})}</td>
+                    <td class="p-3 text-right">
+                        <button onclick="deleteDeductionItem('${empId}', '${d.id}')" class="text-rose-600 hover:text-rose-800 font-bold px-2 py-1" title="Delete Deduction"><i class="fa-solid fa-trash"></i></button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function handleAddDeduction(e) {
+            e.preventDefault();
+            const empId = document.getElementById('deductions-emp-id').value;
+            const note = document.getElementById('new-deduction-note').value.trim();
+            const amount = parseFloat(document.getElementById('new-deduction-amount').value) || 0;
+
+            if (!note || amount <= 0) {
+                alert('Please enter a valid reason and amount.');
+                return;
+            }
+
+            if (!deductions[empId]) {
+                deductions[empId] = [];
+            }
+
+            deductions[empId].push({
+                id: 'ded_' + Date.now(),
+                note,
+                amount
+            });
+
+            saveState();
+            document.getElementById('new-deduction-note').value = '';
+            document.getElementById('new-deduction-amount').value = '';
+            renderModalDeductionsList(empId);
+            renderManagerPortal();
+        }
+
+        function deleteDeductionItem(empId, deductionId) {
+            if (confirm("Remove this deduction item?")) {
+                if (deductions[empId]) {
+                    deductions[empId] = deductions[empId].filter(d => d.id !== deductionId);
+                    saveState();
+                    renderModalDeductionsList(empId);
+                    renderManagerPortal();
+                }
+            }
+        }
+
+        function openAddEmployeeModal() {
+            document.getElementById('modal-add-employee').classList.remove('hidden');
+        }
+
+        function closeAddEmployeeModal() {
+            document.getElementById('modal-add-employee').classList.add('hidden');
+        }
+
+        function handleAddEmployee(e) {
+            e.preventDefault();
+            const name = document.getElementById('new-emp-name').value;
+            const role = document.getElementById('new-emp-role').value;
+            const pin = document.getElementById('new-emp-pin').value;
+            const cycle = document.getElementById('new-emp-cycle').value;
+
+            const avatar = name.substring(0, 2).toUpperCase();
+
+            const newEmp = {
+                id: 'emp_' + Date.now(),
+                name,
+                role,
+                pin,
+                cycle,
+                avatar
+            };
+
+            employees.push(newEmp);
+            saveState();
+
+            closeAddEmployeeModal();
+            renderLoginUserGrid();
+            renderManagerPortal();
+            alert(`Staff member ${name} added successfully!`);
+        }
+
+        function deleteEmployee(empId) {
+            if (confirm("Remove this employee and their associated logs/deductions?")) {
+                employees = employees.filter(e => e.id !== empId);
+                logs = logs.filter(l => l.empId !== empId);
+                delete deductions[empId];
+                if (selectedEmpId === empId && employees.length > 0) {
+                    selectedEmpId = employees[0].id;
+                }
+                saveState();
+                renderLoginUserGrid();
+                renderManagerPortal();
+            }
+        }
+    </script>
+</body>
+</html>
